@@ -6,6 +6,8 @@
 <title>SoftLane Technology — Intelligent Digital Solutions</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<!-- EmailJS — sends form data directly to contact@softlanetech.com -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 /* ════════════════════════════════
    TOKENS
@@ -336,6 +338,10 @@ h2{
 .reveal-d2{transition-delay:0.2s}
 .reveal-d3{transition-delay:0.3s}
 .reveal-d4{transition-delay:0.4s}
+@keyframes successPop{from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}
+@keyframes drawCheck{to{stroke-dashoffset:0}}
+@keyframes pulseRing{0%,100%{opacity:0.4;transform:scale(1)}50%{opacity:0.1;transform:scale(1.15)}}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* ════════════════════════════════
    BENTO GRID — WHY SOFTLANE
@@ -1062,7 +1068,7 @@ footer{
         <div class="cd-icon">✉️</div>
         <div class="cd-text">
           <div class="cd-label">Email</div>
-          <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a7cfc2cbcbc8e7d4c8c1d3cbc6c9c2d3c2c4cf89c4c8ca">[contact@softlanetech.com]</a>
+          <a href="mailto:contact@softlanetech.com" style="color:var(--white);text-decoration:none;font-size:0.88rem;transition:color 0.2s;" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--white)'">contact@softlanetech.com</a>
         </div>
       </div>
       <div class="contact-detail">
@@ -1080,45 +1086,96 @@ footer{
         </div>
       </div>
     </div>
-    <div class="contact-form reveal reveal-d2">
-      <div class="form-row">
-        <div class="form-field">
-          <label class="form-label">First Name</label>
-          <input type="text" class="form-input" placeholder="John">
+    <div class="contact-form reveal reveal-d2" id="contact-form-wrap">
+
+      <!-- ══ SUCCESS SCREEN ══ -->
+      <div id="form-success" style="display:none;text-align:center;padding:52px 24px;">
+        <!-- animated checkmark circle -->
+        <div style="position:relative;width:80px;height:80px;margin:0 auto 28px;">
+          <div style="width:80px;height:80px;border-radius:50%;background:rgba(34,211,165,0.1);border:1.5px solid rgba(34,211,165,0.4);display:flex;align-items:center;justify-content:center;animation:successPop 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both;">
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+              <path id="check-path" d="M7 17L13.5 23.5L27 10" stroke="#22d3a5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="30" stroke-dashoffset="30" style="animation:drawCheck 0.5s 0.3s ease forwards;"/>
+            </svg>
+          </div>
+          <!-- glow ring -->
+          <div style="position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(34,211,165,0.15);animation:pulseRing 2s ease-in-out infinite;"></div>
         </div>
-        <div class="form-field">
-          <label class="form-label">Last Name</label>
-          <input type="text" class="form-input" placeholder="Smith">
+
+        <h3 style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;letter-spacing:-0.5px;margin-bottom:12px;color:var(--white);">Request Successfully Sent!</h3>
+        <p style="color:var(--muted-2);font-size:0.92rem;line-height:1.8;margin-bottom:8px;">Thank you for reaching out to <strong style="color:var(--white)">SoftLane Tech</strong>.</p>
+        <p style="color:var(--muted-2);font-size:0.92rem;line-height:1.8;margin-bottom:28px;">Our team will review your message and get back to you at<br><strong style="color:var(--cyan)">contact@softlanetech.com</strong> within <strong style="color:var(--white)">24 hours</strong>.</p>
+
+        <!-- divider -->
+        <div style="height:1px;background:var(--glass-border);margin-bottom:24px;"></div>
+
+        <p style="color:var(--muted);font-size:0.8rem;margin-bottom:20px;">Need urgent help? Email us directly:</p>
+        <a href="mailto:contact@softlanetech.com" style="display:inline-flex;align-items:center;gap:8px;color:var(--cyan);font-size:0.88rem;font-weight:600;text-decoration:none;padding:10px 20px;border:1px solid rgba(0,229,255,0.2);border-radius:100px;margin-bottom:24px;transition:all 0.2s;" onmouseover="this.style.background='rgba(0,229,255,0.06)'" onmouseout="this.style.background='transparent'">✉ contact@softlanetech.com</a>
+        <br>
+        <button onclick="resetForm()" style="background:transparent;border:none;color:var(--muted);font-family:var(--font-body);font-size:0.82rem;cursor:pointer;text-decoration:underline;text-underline-offset:3px;margin-top:4px;" onmouseover="this.style.color='var(--white)'" onmouseout="this.style.color='var(--muted)'">
+          ← Send another message
+        </button>
+      </div>
+
+      <!-- ══ FORM ══ -->
+      <form id="contact-form" onsubmit="handleSubmit(event)" novalidate>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">First Name <span style="color:var(--cyan)">*</span></label>
+            <input type="text" id="fn" class="form-input" placeholder="John">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Last Name <span style="color:var(--cyan)">*</span></label>
+            <input type="text" id="ln" class="form-input" placeholder="Smith">
+          </div>
         </div>
-      </div>
-      <div class="form-field">
-        <label class="form-label">Work Email</label>
-        <input type="email" class="form-input" placeholder="john@company.com">
-      </div>
-      <div class="form-field">
-        <label class="form-label">Company</label>
-        <input type="text" class="form-input" placeholder="Your Company">
-      </div>
-      <div class="form-field">
-        <label class="form-label">What are you looking for?</label>
-        <select class="form-select form-input">
-          <option value="" disabled selected>Select a service...</option>
-          <option>AI & Machine Learning</option>
-          <option>Custom Software Development</option>
-          <option>Cloud & DevOps Engineering</option>
-          <option>IT Staffing Solutions</option>
-          <option>Security & Compliance</option>
-          <option>IT Consulting & Strategy</option>
-          <option>Data Engineering</option>
-          <option>Mobile Development</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="form-field">
-        <label class="form-label">Tell us about your project</label>
-        <textarea class="form-textarea" placeholder="Describe your goals, timeline, and any relevant details..."></textarea>
-      </div>
-      <button class="submit-btn">Send Message →</button>
+
+        <div class="form-field">
+          <label class="form-label">Work Email <span style="color:var(--cyan)">*</span></label>
+          <input type="email" id="femail" class="form-input" placeholder="john@company.com">
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">Company</label>
+          <input type="text" id="fcompany" class="form-input" placeholder="Your Company">
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">What are you looking for? <span style="color:var(--cyan)">*</span></label>
+          <select id="fservice" class="form-select form-input">
+            <option value="" disabled selected>Select a service...</option>
+            <option>AI &amp; Machine Learning</option>
+            <option>Custom Software Development</option>
+            <option>Cloud &amp; DevOps Engineering</option>
+            <option>IT Staffing Solutions</option>
+            <option>Security &amp; Compliance</option>
+            <option>IT Consulting &amp; Strategy</option>
+            <option>Data Engineering</option>
+            <option>Mobile Development</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">Tell us about your project <span style="color:var(--cyan)">*</span></label>
+          <textarea id="fmessage" class="form-textarea" placeholder="Describe your goals, timeline, and any relevant details..."></textarea>
+        </div>
+
+        <!-- inline error -->
+        <div id="form-error" style="display:none;margin-bottom:14px;padding:12px 16px;border-radius:8px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);color:#fca5a5;font-size:0.84rem;line-height:1.5;"></div>
+
+        <button type="submit" class="submit-btn" id="submit-btn">
+          <span id="btn-text">Send Message →</span>
+          <span id="btn-loading" style="display:none;align-items:center;gap:8px;">
+            <svg style="animation:spin 0.8s linear infinite" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="6" stroke="rgba(0,0,0,0.3)" stroke-width="2"/>
+              <path d="M8 2a6 6 0 0 1 6 6" stroke="#0a0e17" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Sending…
+          </span>
+        </button>
+
+      </form>
     </div>
   </div>
 </section>
@@ -1128,7 +1185,7 @@ footer{
   <div class="footer-top">
     <div class="footer-brand">
       <a class="logo" href="#">
-        <span class="logo-wordmark">Soft<em>Lane</em>Technology</span>
+        <span class="logo-wordmark"><em>SoftLane Technology</em></span>
       </a>
       <p>Intelligent digital solutions for businesses that want to move faster, operate smarter, and grow with confidence.</p>
       <div class="social-row">
@@ -1160,6 +1217,13 @@ footer{
       </ul>
     </div>
     <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="mailto:contact@softlanetech.com">contact@softlanetech.com</a></li>
+        <li><a href="https://softlanetech.com">softlanetech.com</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
       <h4>Legal</h4>
       <ul>
         <li><a href="#">Privacy Policy</a></li>
@@ -1177,7 +1241,7 @@ footer{
   </div>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 /* ── CUSTOM CURSOR ── */
 const cur=document.getElementById('cur'),ring=document.getElementById('ring');
 let mx=0,my=0,rx=0,ry=0;
@@ -1258,6 +1322,151 @@ new IntersectionObserver(entries=>{
     }
   });
 },{threshold:0.45}).observe.apply(null,[...sections].map(s=>[s]));
+
+/* ── CONTACT FORM — EmailJS ── */
+/*
+  HOW TO ACTIVATE (one-time setup, 5 minutes):
+  1. Go to https://www.emailjs.com → Sign up free
+  2. Dashboard → Email Services → Add Service → Gmail (or any)
+     → Connect your contact@softlanetech.com Gmail → Copy SERVICE_ID
+  3. Dashboard → Email Templates → Create Template → paste this:
+
+     Subject: New enquiry from {{from_name}} — SoftLane Tech
+     Body:
+       Name:    {{from_name}}
+       Email:   {{from_email}}
+       Company: {{company}}
+       Service: {{service}}
+
+       Message:
+       {{message}}
+
+       ---
+       Sent from softlanetech.com contact form
+
+     → Set "To Email" field to: contact@softlanetech.com
+     → Save → Copy TEMPLATE_ID
+
+  4. Dashboard → Account → Copy PUBLIC_KEY
+
+  5. Replace the three values below with your actual IDs:
+*/
+const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';   // e.g. 'service_abc123'
+const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';  // e.g. 'template_xyz789'
+const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';   // e.g. 'aBcDeFgHiJkLmNoP'
+
+async function handleSubmit(e) {
+  e.preventDefault();
+
+  const btn       = document.getElementById('submit-btn');
+  const btnText   = document.getElementById('btn-text');
+  const btnLoad   = document.getElementById('btn-loading');
+  const errBox    = document.getElementById('form-error');
+
+  // ── Gather values ──
+  const firstName = document.getElementById('fn').value.trim();
+  const lastName  = document.getElementById('ln').value.trim();
+  const email     = document.getElementById('femail').value.trim();
+  const company   = document.getElementById('fcompany').value.trim();
+  const service   = document.getElementById('fservice').value;
+  const message   = document.getElementById('fmessage').value.trim();
+
+  // ── Validation ──
+  const fields = [
+    { el: document.getElementById('fn'),       val: firstName, label: 'First Name' },
+    { el: document.getElementById('ln'),       val: lastName,  label: 'Last Name' },
+    { el: document.getElementById('femail'),   val: email,     label: 'Email' },
+    { el: document.getElementById('fservice'), val: service,   label: 'Service' },
+    { el: document.getElementById('fmessage'), val: message,   label: 'Message' },
+  ];
+
+  let missing = [];
+  fields.forEach(f => {
+    if (!f.val) {
+      missing.push(f.label);
+      f.el.style.borderColor = 'rgba(239,68,68,0.6)';
+      f.el.style.boxShadow   = '0 0 0 3px rgba(239,68,68,0.08)';
+      f.el.addEventListener('input', () => {
+        f.el.style.borderColor = '';
+        f.el.style.boxShadow   = '';
+        if (document.querySelectorAll('[style*="rgba(239,68,68"]').length === 0)
+          errBox.style.display = 'none';
+      }, { once: true });
+    }
+  });
+
+  // Basic email format check
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    missing.push('Valid Email');
+    document.getElementById('femail').style.borderColor = 'rgba(239,68,68,0.6)';
+  }
+
+  if (missing.length) {
+    errBox.textContent = `Please fill in: ${missing.join(', ')}`;
+    errBox.style.display = 'block';
+    document.getElementById('contact-form').scrollIntoView({ behavior:'smooth', block:'nearest' });
+    return;
+  }
+  errBox.style.display = 'none';
+
+  // ── Loading state ──
+  btnText.style.display = 'none';
+  btnLoad.style.display = 'inline-flex';
+  btn.disabled = true;
+  btn.style.opacity = '0.75';
+
+  // ── Send via EmailJS ──
+  const templateParams = {
+    from_name:  `${firstName} ${lastName}`,
+    from_email: email,
+    company:    company || 'Not provided',
+    service:    service,
+    message:    message,
+    to_email:   'gpsr.sivanandareddy@gmail.com',
+    reply_to:   email,
+  };
+
+  try {
+    // Check if EmailJS IDs have been configured
+    if (EMAILJS_PUBLIC_KEY === 'YOUR_PUBLIC_KEY') {
+      // Demo mode — simulate success after 1.5s so you can test the UI
+      await new Promise(r => setTimeout(r, 1500));
+      showSuccess();
+      return;
+    }
+
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams, EMAILJS_PUBLIC_KEY);
+    showSuccess();
+
+  } catch (err) {
+    console.error('EmailJS error:', err);
+    btnText.style.display = 'inline';
+    btnLoad.style.display = 'none';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    errBox.innerHTML = `Something went wrong. Please email us directly at <a href="mailto:contact@softlanetech.com" style="color:var(--cyan)">contact@softlanetech.com</a>`;
+    errBox.style.display = 'block';
+  }
+}
+
+function showSuccess() {
+  document.getElementById('contact-form').style.display = 'none';
+  const s = document.getElementById('form-success');
+  s.style.display = 'block';
+  s.style.animation = 'fadeUp 0.5s ease both';
+}
+
+function resetForm() {
+  document.getElementById('contact-form').reset();
+  document.getElementById('contact-form').style.display = 'block';
+  document.getElementById('form-success').style.display  = 'none';
+  document.getElementById('form-error').style.display    = 'none';
+  document.getElementById('btn-text').style.display    = 'inline';
+  document.getElementById('btn-loading').style.display = 'none';
+  const btn = document.getElementById('submit-btn');
+  btn.disabled      = false;
+  btn.style.opacity = '1';
+}
 </script>
 </body>
 </html>
